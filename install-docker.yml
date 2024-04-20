@@ -1,0 +1,58 @@
+---
+- name: Add Docker's official GPG key
+  hosts: all
+  become: true
+  tasks:
+    - name: Install ca-certificates and curl
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - ca-certificates
+        - curl
+
+    - name: Create directory for keyrings
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: "0755"
+
+    - name: Download Docker GPG key
+      ansible.builtin.get_url:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        dest: /etc/apt/keyrings/docker.asc
+        mode: "0644"
+
+- name: Add Docker repository to Apt sources
+  hosts: all
+  become: true
+  tasks:
+    - name: Add Docker repository
+      ansible.builtin.lineinfile:
+        path: /etc/apt/sources.list.d/docker.list
+        line: "deb [arline: >-
+          deb [arch={{ ansible_architecture }} signed-by=/etc/apt/keyrings/docker.asc]
+          https://download.docker.com/linux/ubuntu
+          {{ ansible_distribution_release }} stablech={{ ansible_architecture }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+      notify: apt update
+
+- name: Install Docker
+  hosts: all
+  become: true
+  tasks:
+    - name: Install Docker packages
+      ansible.builtin.package:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
+
+    - name: Manage Docker group membership
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: true
+      notify: restart docker
