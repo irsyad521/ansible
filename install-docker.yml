@@ -33,6 +33,11 @@
         line: "deb [arch={{ ansible_architecture }} signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
       notify: Apt update
 
+  handlers:
+    - name: Apt update
+      ansible.builtin.apt:
+        update_cache: true
+
 - name: Install Docker
   hosts: all
   become: true
@@ -55,10 +60,6 @@
       notify: Restart docker
 
   handlers:
-    - name: Apt update
-      ansible.builtin.apt:
-        update_cache: true
-
     - name: Restart docker
       ansible.builtin.service:
         name: docker

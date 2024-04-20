@@ -1,0 +1,28 @@
+---
+- name: Run MySQL Container
+  hosts: all
+  become: true
+  tasks:
+    - name: Pull MySQL Docker Image
+      community.docker.docker_image:
+        name: mysql:latest
+        source: pull
+
+    - name: Create Docker Network
+      community.docker.docker_network:
+        name: mysql_network
+
+    - name: Run MySQL Container
+      community.docker.docker_container:
+        name: mysql_container
+        image: mysql:latest
+        state: started
+        env:
+          MYSQL_ROOT_PASSWORD: mypassword
+          MYSQL_DATABASE: mydatabase
+          MYSQL_USER: myuser
+          MYSQL_PASSWORD: mypassword
+        ports:
+          - "3306:3306"
+        networks:
+          - name: mysql_network
