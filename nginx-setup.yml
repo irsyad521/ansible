@@ -1,0 +1,22 @@
+---
+- name: Install Nginx
+  hosts: all
+  become: true
+  tasks:
+    - name: Install Nginx on Debian/Ubuntu
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Install Nginx on CentOS/RHEL
+      ansible.builtin.dnf:
+        name: nginx
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: Start Nginx service
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
