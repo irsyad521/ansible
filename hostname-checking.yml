@@ -1,0 +1,11 @@
+---
+- name: Check Hostname
+  hosts: all
+  tasks:
+    - name: Get hostname
+      ansible.builtin.command: hostname
+      register: current_hostname
+
+    - name: Print current hostname
+      debug:
+        msg: "Current hostname is {{ current_hostname.stdout }}"
